@@ -17,9 +17,9 @@
 # project name
 PRJ = main
 # avr mcu
-MCU = attiny45
+MCU = attiny13
 # mcu clock frequency
-CLK = 8000000
+CLK = 4800000
 # avr programmer (and port if necessary)
 # e.g. PRG = usbtiny -or- PRG = arduino -P /dev/tty.usbmodem411
 
@@ -30,14 +30,15 @@ CLK = 8000000
 PRG = usbasp
 # fuse values for avr: low, high, and extended
 # see http://www.engbedded.com/fusecalc/ for other MCUs and options
-LFU = 0xE2
-HFU = 0xDF
+LFU = 0x79
+HFU = 0xFF
 EFU = 
 # program source files (not including external libraries)
 SRC = $(PRJ).cpp
 # where to look for external libraries (consisting of .c/.cpp files and .h files)
 # e.g. EXT = ../../EyeToSee ../../YouSART
 EXT = ./inc ./utils ./HAL/ ./drivers
+EEPROM_IMG = eeprom.eep
 
 
 #################################################################################################
@@ -52,13 +53,14 @@ CFLAGS    = -Wall -Os -DF_CPU=$(CLK) -mmcu=$(MCU) $(INCLUDE)
 CPPFLAGS =
 
 # executables
-AVRDUDE = avrdude -c $(PRG) -p $(MCU)
+AVRDUDE = avrdude -c $(PRG) -p $(MCU) 
 OBJCOPY = avr-objcopy
 OBJDUMP = avr-objdump
 SIZE    = avr-size --format=avr --mcu=$(MCU)
 CC      = avr-gcc
 
 # generate list of objects
+
 CFILES    = $(filter %.c, $(SRC))
 EXTC     := $(foreach dir, $(EXT), $(wildcard $(dir)/*.c))
 CPPFILES  = $(filter %.cpp, $(SRC))
@@ -82,6 +84,10 @@ flash: all
 # write fuses to mcu
 fuse:
 	$(AVRDUDE) -U lfuse:w:$(LFU):m -U hfuse:w:$(HFU):m -U efuse:w:$(EFU):m
+
+# write fuses to mcu
+eeprom:
+	$(AVRDUDE) -U eeprom:w:$(EEPROM_IMG):r
 
 # generate disassembly files for debugging
 disasm: $(PRJ).elf

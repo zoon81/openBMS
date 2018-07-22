@@ -2,6 +2,7 @@
 
 #define MODE_TRANSMITTER 0
 #define MODE_RECEIVER 1
+// TIMER 4.8M / 8 = 600K -> 1.6667us
 #define TIMER_PRESCALER_8 (1 << CS01)
 #define TMPVAL 0x55
 
@@ -9,6 +10,20 @@
 volatile uint8_t tx_buffer[TX_BUFFER_SIZE];
 volatile uint8_t tx_buffer_index_head = 0;
 volatile uint8_t tx_buffer_index_tail = 0;
+
+uint8_t fifo_getUsedSpace(){
+    uint8_t fifo_used_space = 0;
+    uint8_t tail = tx_buffer_index_tail;
+    while(tail != tx_buffer_index_head){
+        tail = tail >= TX_BUFFER_SIZE - 1 ? 0 : tail + 1;
+        fifo_used_space++;
+    }
+    return fifo_used_space;
+}
+
+uint8_t fifo_getFreeSpace(){
+    return TX_BUFFER_SIZE - fifo_getUsedSpace() - 1;
+}
 
 volatile uint8_t transreceiver_mode = MODE_RECEIVER;
 
@@ -22,20 +37,21 @@ void swuart_init() {
     rx_buffer_index_tail = 0;
     
     OCR0A = WAIT_BETWEEN_SAMPLES;
-    TIMSK = (1 << OCIE0A);
+    TIMSK0 = (1 << OCIE0A);
     TCCR0A = (1 << WGM01);
     sei();
     TCNT0 = 0;
+    bytemask = 0xFF;
 }
 
 void swuart_transmit(uint8_t data){
+    while(!fifo_getFreeSpace());              //Wait until we get free space a.k.a waiting for transmitter to send data out
     tx_buffer[tx_buffer_index_head] = data;
     tx_buffer_index_head++;
-    if(tx_buffer_index_head > (TX_BUFFER_SIZE - 1)){
+    if(tx_buffer_index_head >= TX_BUFFER_SIZE){
         tx_buffer_index_head = 0;
     }
     transreceiver_mode = MODE_TRANSMITTER;
-    bytemask = 0xFF;                                    //If this is 0xFF, then we need to generate the start condition
     TCCR0B |= TIMER_PRESCALER_8;
 }
 
@@ -64,6 +80,10 @@ ISR(TIM0_COMPA_vect){
                     SWUART_TX_PORT |= (1 << SWUART_TX_PIN);
                     bytemask = 0xFF;
                     tx_buffer_index_tail++;
+                    if(tx_buffer_index_tail > TX_BUFFER_SIZE){
+                        tx_buffer_index_tail = 0;
+                    }
+                    bytemask = 0xFF;
                 }
                 //Sending data bit
                 else {
