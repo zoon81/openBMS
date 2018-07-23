@@ -15,7 +15,7 @@
 
 # parameters (change this stuff accordingly)
 # project name
-PRJ = main
+PRJ = cell
 # avr mcu
 MCU = attiny13
 # mcu clock frequency
@@ -34,10 +34,10 @@ LFU = 0x79
 HFU = 0xFF
 EFU = 
 # program source files (not including external libraries)
-SRC = $(PRJ).cpp
+#SRC = $(PRJ).cpp
 # where to look for external libraries (consisting of .c/.cpp files and .h files)
 # e.g. EXT = ../../EyeToSee ../../YouSART
-EXT = ./inc ./utils ./HAL/ ./drivers
+EXT = ./inc ./utils ./HAL/ ./drivers ./
 EEPROM_IMG = eeprom.eep
 
 
@@ -61,11 +61,11 @@ CC      = avr-gcc
 
 # generate list of objects
 
-CFILES    = $(filter %.c, $(SRC))
+#CFILES    = $(filter %.c, $(SRC))
 EXTC     := $(foreach dir, $(EXT), $(wildcard $(dir)/*.c))
 CPPFILES  = $(filter %.cpp, $(SRC))
 EXTCPP   := $(foreach dir, $(EXT), $(wildcard $(dir)/*.cpp))
-OBJ       = $(CFILES:.c=.o) $(EXTC:.c=.o) $(CPPFILES:.cpp=.o) $(EXTCPP:.cpp=.o)
+OBJ       = $(EXTC:.c=.o) $(CPPFILES:.cpp=.o) $(EXTCPP:.cpp=.o)
 
 # user targets
 # compile all files and delete object files

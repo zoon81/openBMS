@@ -5,6 +5,7 @@
 // TIMER 4.8M / 8 = 600K -> 1.6667us
 #define TIMER_PRESCALER_8 (1 << CS01)
 #define TMPVAL 0x55
+#define TX_BUFFER_LAST_INDEX (TX_BUFFER_SIZE - 1)
 
 
 volatile uint8_t tx_buffer[TX_BUFFER_SIZE];
@@ -15,18 +16,17 @@ uint8_t fifo_getUsedSpace(){
     uint8_t fifo_used_space = 0;
     uint8_t tail = tx_buffer_index_tail;
     while(tail != tx_buffer_index_head){
-        tail = tail >= TX_BUFFER_SIZE - 1 ? 0 : tail + 1;
+        tail = tail >= TX_BUFFER_LAST_INDEX ? 0 : tail + 1;
         fifo_used_space++;
     }
     return fifo_used_space;
 }
 
 uint8_t fifo_getFreeSpace(){
-    return TX_BUFFER_SIZE - fifo_getUsedSpace() - 1;
+    return TX_BUFFER_LAST_INDEX - fifo_getUsedSpace();
 }
 
 volatile uint8_t transreceiver_mode = MODE_RECEIVER;
-
 volatile uint8_t bytemask;
 
 void swuart_init() {
@@ -47,10 +47,7 @@ void swuart_init() {
 void swuart_transmit(uint8_t data){
     while(!fifo_getFreeSpace());              //Wait until we get free space a.k.a waiting for transmitter to send data out
     tx_buffer[tx_buffer_index_head] = data;
-    tx_buffer_index_head++;
-    if(tx_buffer_index_head >= TX_BUFFER_SIZE){
-        tx_buffer_index_head = 0;
-    }
+    tx_buffer_index_head++;                    //this never go out off buffer index range (reseted in ISR STOP cond)
     transreceiver_mode = MODE_TRANSMITTER;
     TCCR0B |= TIMER_PRESCALER_8;
 }
@@ -79,9 +76,13 @@ ISR(TIM0_COMPA_vect){
                 if (bytemask == 0x08) {
                     SWUART_TX_PORT |= (1 << SWUART_TX_PIN);
                     bytemask = 0xFF;
+                    //handling buffer
                     tx_buffer_index_tail++;
-                    if(tx_buffer_index_tail > TX_BUFFER_SIZE){
+                    if(tx_buffer_index_tail >= TX_BUFFER_SIZE){
                         tx_buffer_index_tail = 0;
+                    }
+                    if(tx_buffer_index_head >= TX_BUFFER_SIZE ){
+                        tx_buffer_index_head = 0;
                     }
                     bytemask = 0xFF;
                 }

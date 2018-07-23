@@ -12,9 +12,9 @@ void main(){
     swuart_transmit(0x56);
     swuart_transmit(0x57);
     swuart_transmit(0x58);
-    //swuart_transmit(0x59);
-    //swuart_transmit(0x60);
-    //swuart_transmit(0x61);
+    swuart_transmit(0x59);
+    swuart_transmit(0x60);
+    swuart_transmit(0x61);
     //swuart_transmit(cfg_loader_getDeviceAddress());
     //swuart_transmit(cfg_loader_getTCNT_val());
     //swuart_receive();
