@@ -1,5 +1,6 @@
 #ifndef INC_SWUART_H
 #define INC_SWUART_H
+
 #define F_CPU 4800000UL
 
 #include <avr/io.h>
@@ -23,13 +24,18 @@
 
 #define TX_BUFFER_SIZE 4
 #define RX_BUFFER_SIZE 4
-volatile uint8_t rx_buffer[RX_BUFFER_SIZE];
-volatile uint8_t rx_buffer_index_head;
-volatile uint8_t rx_buffer_index_tail;
+
+#define SW_UART_STATUS_BUSY 1
+#define SW_UART_STATUS_READY 2
+#define SW_UART_STATUS_TRANSMIT 4
+#define SW_UART_STATUS_RECEIVE 8
 
 void swuart_init();
 void swuart_transmit(uint8_t data);
+uint8_t swuart_isTransmitterBusy();
 void swuart_receive();
+uint8_t swuart_availableByte();
+uint8_t swuart_getReceivedByte();
 
 
 #endif

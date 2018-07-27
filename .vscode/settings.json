@@ -13,7 +13,14 @@
         "inttypes.h": "c",
         "sevseg.h": "c",
         "keymatrix.h": "c",
-        "cfg_loader.h": "c"
+        "cfg_loader.h": "c",
+        "stdint.h": "c",
+        "portpins.h": "c",
+        "common.h": "c",
+        "version.h": "c",
+        "fuse.h": "c",
+        "lock.h": "c",
+        "fifo.h": "c"
     },
     "editor.fontSize": 14
 }
