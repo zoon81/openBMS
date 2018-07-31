@@ -17,9 +17,9 @@
 # project name
 PRJ = cell
 # avr mcu
-MCU = attiny13
+MCU = attiny45
 # mcu clock frequency
-CLK = 4800000
+CLK = 8000000
 # avr programmer (and port if necessary)
 # e.g. PRG = usbtiny -or- PRG = arduino -P /dev/tty.usbmodem411
 
@@ -30,8 +30,8 @@ CLK = 4800000
 PRG = usbasp
 # fuse values for avr: low, high, and extended
 # see http://www.engbedded.com/fusecalc/ for other MCUs and options
-LFU = 0x79
-HFU = 0xFF
+LFU = 0xE2
+HFU = 0xDF
 EFU = 
 # program source files (not including external libraries)
 #SRC = $(PRJ).cpp

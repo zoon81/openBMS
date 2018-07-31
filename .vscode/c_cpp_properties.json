@@ -14,7 +14,7 @@
                 "${workspaceRoot}/drivers/inc"
             ],
             "defines": [
-                "__AVR_ATtiny13A__"
+                "__AVR_ATtiny45__"
             ],
             "intelliSenseMode": "clang-x64",
             "browse": {

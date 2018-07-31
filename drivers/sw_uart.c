@@ -3,7 +3,6 @@
 
 #define MODE_TRANSMITTER 0
 #define MODE_RECEIVER 1
-// TIMER 4.8M / 8 = 600K -> 1.6667us
 #define TIMER_PRESCALER_8 (1 << CS01)
 #define TMPVAL 0x55
 #define TX_BUFFER_LAST_INDEX (TX_BUFFER_SIZE - 1)
@@ -39,7 +38,7 @@ void swuart_init() {
 
     
     OCR0A = WAIT_BETWEEN_SAMPLES;
-    TIMSK0 = (1 << OCIE0A);
+    TIMSK = (1 << OCIE0A);
     TCCR0A = (1 << WGM01);
     sei();
     TCNT0 = 0;
@@ -117,7 +116,7 @@ ISR(TIM0_COMPA_vect){
         if (bytemask < 8) {
             PORTB |= (1 << PB3);
             PORTB &= ~(1 << PB3);
-            uint8_t pin_value = (PINB & (1 << SWUART_RX_PIN)) ? 1 : 0;
+            uint8_t pin_value = (SWUART_RX_P_IN & (1 << SWUART_RX_PIN)) ? 1 : 0;
             tmp |=  pin_value << bytemask;
             bytemask++;
         } else {
