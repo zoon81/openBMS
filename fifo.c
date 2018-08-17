@@ -7,7 +7,7 @@ uint8_t fifo_push(struct fifo_t *fifo, uint8_t data){
         return 1;
     } else {                           
         fifo->buffer[fifo->head] = data;
-        fifo->head++;
+        fifo->head = fifo->head < (fifo->size - 1) ? fifo->head + 1 : 0;
         fifo->used++;
         return 0;       
     }
