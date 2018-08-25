@@ -48,7 +48,9 @@ void swuart_init() {
 
 void swuart_transmit(uint8_t data){
     // wait until we get free space in fifo
+    PORTB |= (1 << PB0);
     while( fifo_push(&tx_fifo, data) ){};
+    PORTB &= ~(1 << PB0);
     //transreceiver_mode = MODE_TRANSMITTER;
     status = SW_UART_STATUS_TRANSMIT | SW_UART_STATUS_BUSY;
     TCCR0B |= TIMER_PRESCALER_8;
@@ -74,13 +76,15 @@ uint8_t swuart_getReceivedByte(){
     fifo_pull(&rx_fifo, &data);
     return data;
 }
-
+// check need to be done for dropped interupts durring isr execution
 ISR(TIM0_COMPA_vect){
     if (status & SW_UART_STATUS_TRANSMIT){
         //TRASNSMITTER
         if (tx_fifo.used <= 0){
+            
             TCCR0B = TCCR0B & 0xF8; //no more data, shut timer down
             status = SW_UART_STATUS_READY;
+            
         }
         else{
             //generate START condition
@@ -90,11 +94,13 @@ ISR(TIM0_COMPA_vect){
             } else {
                 //generating STOP
                 if (bytemask == 0x08) {
+                    PORTB |= (1 << PB1);
                     SWUART_TX_PORT |= (1 << SWUART_TX_PIN);
                     bytemask = 0xFF;
                     //handling fifo
                     fifo_steptail(&tx_fifo);
                     bytemask = 0xFF;
+                    PORTB &= ~(1 << PB1);
                 }
                 //Sending data bit
                 else {
