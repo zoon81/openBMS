@@ -1,0 +1,27 @@
+{
+    "files.associations": {
+        "main.h": "c",
+        "nrf24l01.h": "c",
+        "io.h": "c",
+        "delay.h": "c",
+        "uart.h": "c",
+        "spi.h": "c",
+        "interrupt.h": "c",
+        "lcd.h": "c",
+        "itoa.h": "c",
+        "iom128.h": "c",
+        "inttypes.h": "c",
+        "sevseg.h": "c",
+        "keymatrix.h": "c",
+        "cfg_loader.h": "c",
+        "stdint.h": "c",
+        "portpins.h": "c",
+        "common.h": "c",
+        "version.h": "c",
+        "fuse.h": "c",
+        "lock.h": "c",
+        "fifo.h": "c",
+        "packet.h": "c"
+    },
+    "editor.fontSize": 14
+}
