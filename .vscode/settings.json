@@ -20,7 +20,8 @@
         "version.h": "c",
         "fuse.h": "c",
         "lock.h": "c",
-        "fifo.h": "c"
+        "fifo.h": "c",
+        "packet.h": "c"
     },
     "editor.fontSize": 14
 }
