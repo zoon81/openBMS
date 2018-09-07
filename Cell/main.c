@@ -6,6 +6,7 @@
 #include "adc.h"
 #include "util.h"
 
+<<<<<<< HEAD
 void do_ballance();
 
 uint8_t status = STATUS_IDLE;
@@ -37,15 +38,26 @@ void main(){
     //     _delay_ms(500);
     //     _delay_ms(500);
     // }
+=======
+void main(){
+    swuart_init();
+    adc_init();
+    DDRB |= (1 << DD0) | (1 << DD1);
+    swuart_transmit(0x55);
+    while(swuart_isTransmitterBusy());
+>>>>>>> 0af11edb2c3301e8d9ec7259e5c7c1e7211edd48
     
     while(1){
         uint8_t msec_counter = 0;
         struct packet_t p;
         swuart_receive();
+<<<<<<< HEAD
         
         set_sleep_mode(SLEEP_MODE_PWR_DOWN);
         sleep_mode();
 
+=======
+>>>>>>> 0af11edb2c3301e8d9ec7259e5c7c1e7211edd48
         while(swuart_availableByte() == 0 );
         uint8_t dev_addr = swuart_getReceivedByte();
         //This packet is for me?
@@ -57,12 +69,19 @@ void main(){
             }
             if (msec_counter < PACKET_TIMEOUT)
             {
+<<<<<<< HEAD
                 //Parsing raw data
                 p.address = dev_addr;
                 p.command = swuart_getReceivedByte();
                 p.data = swuart_getReceivedByte();
                 p.data <<= 8;
                 p.data |= swuart_getReceivedByte();
+=======
+                //Parsing the packet
+                p.address = dev_addr;
+                p.command = swuart_getReceivedByte();
+                p.data = swuart_getReceivedByte();
+>>>>>>> 0af11edb2c3301e8d9ec7259e5c7c1e7211edd48
                 p.crc = swuart_getReceivedByte();
                 if ( packet_validate(&p) ){
                     switch (p.command)
@@ -80,11 +99,14 @@ void main(){
                         packet_send(&resp);
                         break;
                     case PACKET_CMD_BALLANCE:
+<<<<<<< HEAD
                         ballanceV = resp.data;
                         TCNT1 = 0;
                         // Start Timer1
                         do_ballance();
                         TCCR1 |= 3;
+=======
+>>>>>>> 0af11edb2c3301e8d9ec7259e5c7c1e7211edd48
                         break;
                     default:
                         break;
@@ -95,11 +117,16 @@ void main(){
             }
             // Packet timeout
             else{
+<<<<<<< HEAD
                 swuart_clearRxFifo();
+=======
+
+>>>>>>> 0af11edb2c3301e8d9ec7259e5c7c1e7211edd48
             }
         } 
         // This packet is not for me
         else {
+<<<<<<< HEAD
             swuart_halt();
             swuart_clearRxFifo();
             _delay_ms(5);
@@ -127,3 +154,9 @@ void do_ballance(){
         status = STATUS_BALLANC_DONE;
     }
 }
+=======
+
+        }
+    } 
+}
+>>>>>>> 0af11edb2c3301e8d9ec7259e5c7c1e7211edd48

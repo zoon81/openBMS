@@ -11,7 +11,11 @@
 #define PACKET_CMD_PING         0xE9
 
 #define PACKET_TIMEOUT 5
+<<<<<<< HEAD
 #define PACKET_SIZE 5
+=======
+#define PACKET_SIZE 4
+>>>>>>> 0af11edb2c3301e8d9ec7259e5c7c1e7211edd48
 #define PACKET_PAYLOAD_SIZE (PACKET_SIZE - 1)
 
 struct packet_t{

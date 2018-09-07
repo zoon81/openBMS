@@ -9,7 +9,11 @@
 #define ADC_CH3_PB3 3
 
 #define ADC_BANDGAP_mV_stock 1100
+<<<<<<< HEAD
 #define ADC_BANDGAP_mV_cal 13
+=======
+#define ADC_BANDGAP_mV_cal 0
+>>>>>>> 0af11edb2c3301e8d9ec7259e5c7c1e7211edd48
 #define ADC_MAXVALUE 1023UL
 #define ADC_BANDGAP_mV (ADC_BANDGAP_mV_stock - ADC_BANDGAP_mV_cal)
 #define ADC_MAGIC_NUM ( ADC_BANDGAP_mV * ADC_MAXVALUE )

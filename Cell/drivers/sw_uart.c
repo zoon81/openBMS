@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 // This module are using TIMER0
 
+=======
+>>>>>>> 0af11edb2c3301e8d9ec7259e5c7c1e7211edd48
 #include "sw_uart.h"
 #include "fifo.h"
 
@@ -9,8 +12,11 @@
 #define TMPVAL 0x55
 #define TX_BUFFER_LAST_INDEX (TX_BUFFER_SIZE - 1)
 
+<<<<<<< HEAD
 #define SWUART_TX_TIMER_STOP TCCR0B = TCCR0B & 0xF8; 
 
+=======
+>>>>>>> 0af11edb2c3301e8d9ec7259e5c7c1e7211edd48
 //FiFo
 struct fifo_t tx_fifo;
 uint8_t tx_buffer[TX_BUFFER_SIZE];
@@ -71,6 +77,7 @@ void swuart_receive(){
     status = SW_UART_STATUS_RECEIVE;
 }
 
+<<<<<<< HEAD
 void swuart_halt(){
     // disable receiver IRQ
     GIMSK &= ~( 1 << INT0);
@@ -79,6 +86,8 @@ void swuart_halt(){
 
 }
 
+=======
+>>>>>>> 0af11edb2c3301e8d9ec7259e5c7c1e7211edd48
 uint8_t swuart_availableByte(){
     return rx_fifo.used;
 }
@@ -88,6 +97,7 @@ uint8_t swuart_getReceivedByte(){
     fifo_pull(&rx_fifo, &data);
     return data;
 }
+<<<<<<< HEAD
 
 void swuart_clearRxFifo(){
     rx_fifo.head = 0;
@@ -95,13 +105,22 @@ void swuart_clearRxFifo(){
     rx_fifo.used = 0;
 }
 
+=======
+>>>>>>> 0af11edb2c3301e8d9ec7259e5c7c1e7211edd48
 // check need to be done for dropped interupts durring isr execution
 ISR(TIM0_COMPA_vect){
     if (status & SW_UART_STATUS_TRANSMIT){
         //TRASNSMITTER
         if (tx_fifo.used <= 0){
+<<<<<<< HEAD
             SWUART_TX_TIMER_STOP; //no more data, shut timer down
             status = SW_UART_STATUS_READY;
+=======
+            
+            TCCR0B = TCCR0B & 0xF8; //no more data, shut timer down
+            status = SW_UART_STATUS_READY;
+            
+>>>>>>> 0af11edb2c3301e8d9ec7259e5c7c1e7211edd48
         }
         else{
             //generate START condition

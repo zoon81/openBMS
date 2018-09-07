@@ -33,6 +33,7 @@ def main(argv):
     if not ser.is_open:
         print("Serial port not available")
         sys.exit()
+<<<<<<< HEAD
     ser.timeout = pkg.DATAREAD_TIMEOUT
     m_pkg = pkg.Frame()
     m_pkg.setSerPort(ser)
@@ -66,6 +67,13 @@ def main(argv):
         else:
             print("\nBattery voltage is {batV} V".format(batV = pkg_response.data))
     
+=======
+    m_pkg = pkg.Package()
+    m_pkg.pkgBuilder(pkg.SLAVE1_ADDRESS, pkg.PACKET_CMD_PING,0)
+    m_pkg.genCRC8()
+    m_pkg.setSerPort(ser)
+    m_pkg.send()
+>>>>>>> 0af11edb2c3301e8d9ec7259e5c7c1e7211edd48
 
 if __name__ == "__main__":
     main(sys.argv[1:])
