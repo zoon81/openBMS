@@ -1,0 +1,42 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "logging": {
+                "engineLogging": true,
+                "programOutput": true,
+                "exceptions": true,
+                "moduleLoad": true,
+                "trace": true,
+                "traceResponse": true
+            },
+            "serverLaunchTimeout": 5000,
+            "filterStderr": true,
+            "filterStdout": false,
+            "serverStarted": "nrf51.cpu",
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "externalConsole": true,
+            "program": "${workspaceRoot}/_build/nrf51822_xxaa.out",
+            "setupCommands": [
+                { "text": "file ${workspaceRoot}/_build/nrf51822_xxaa.out", "description": "load file", "ignoreFailures": false},
+                { "text": "set remote hardware-breakpoint-limit 4", "ignoreFailures": false },
+                { "text": "set remote hardware-watchpoint-limit 2", "ignoreFailures": false }  
+            ],
+            "linux": {
+                "MIMode": "gdb",
+                "miDebuggerPath": "/home/zoon81/nRF/_tools/gcc-arm-none-eabi-4_9-2015q3-20150921-linux/gcc-arm-none-eabi-4_9-2015q3/bin/arm-none-eabi-gdb",
+                "miDebuggerServerAddress": "localhost:3333",
+                //"preLaunchTask": "make flash",
+                "debugServerPath": "openocd",
+                "debugServerArgs": "-f ${workspaceRoot}/openocd.cfg ",
+             },
+        }
+    ]
+}

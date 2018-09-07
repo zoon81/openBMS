@@ -1,0 +1,27 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/config",
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/drivers_nrf/delay",
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/device",
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/drivers_nrf/hal"
+            ],
+            "defines": ["NRF51 = 1", "BOARD_PCA20006", "BSP_DEFINES_ONLY"],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64",
+            "browse": {
+                "path": [
+                    "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            }
+        }
+    ],
+    "version": 4
+}

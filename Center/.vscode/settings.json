@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "boards.h": "c",
+        "nrf_delay.h": "c",
+        "nrf_gpio.h": "c",
+        "nrf_assert.h": "c",
+        "app_error.h": "c",
+        "sdk_errors.h": "c",
+        "nrf_error.h": "c",
+        "arduino_primo.h": "c",
+        "pca10000.h": "c",
+        "nrf.h": "c",
+        "ble400.h": "c"
+    }
+}
