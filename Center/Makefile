@@ -8,20 +8,27 @@ MAKEFILE_DIR := $(dir $(MAKEFILE_NAME) )
 
 SDK_ROOT = /home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e
 TEMPLATE_PATH = $(SDK_ROOT)/components/toolchain/gcc
-LINKER_SCRIPT_FOLDER = s130
+LINKER_SCRIPT_FOLDER = s110
 LINKER_SCRIPT_NAME = blinky_gcc_nrf51.ld
+SoftDevice_PATH = $(SDK_ROOT)/components/softdevice/s110/hex/s110_nrf51_8.0.0_softdevice.hex
 
 include $(TEMPLATE_PATH)/Makefile.posix
 
 MK := mkdir
 RM := rm -rf
-
+VERBOSE = 1
 #echo suspend
 ifeq ("$(VERBOSE)","1")
 NO_ECHO := 
 else
 NO_ECHO := @
 endif
+
+# debug build?
+DEBUG = 1
+
+# debug logs/ trace over UART
+TRACE = 0
 
 # Toolchain commands
 CC              := '$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-gcc'
@@ -38,22 +45,77 @@ OPENOCD			:= openocd
 remduplicates = $(strip $(if $1,$(firstword $1) $(call remduplicates,$(filter-out $(firstword $1),$1))))
 
 #Project sources
-C_SOURCE_FILES = main.c
+C_SOURCE_FILES = main.c ./config/bsp.c ./our_service.c
 
 # Project includes
-INC_PATHS  = -I$(abspath .)
+INC_PATH  = ./
+INC_PATH  += ./config/ ./inc/
 
-#SDK sources
-C_SOURCE_FILES += $(SDK_ROOT)/components/toolchain/system_nrf51.c
-C_SOURCE_FILES +=  $(SDK_ROOT)/components/drivers_nrf/delay/nrf_delay.c
+	# Libs
+C_SOURCE_FILES += \
+$(SDK_ROOT)/components/libraries/button/app_button.c \
+$(SDK_ROOT)/components/libraries/util/app_error.c \
+$(SDK_ROOT)/components/libraries/gpiote/app_gpiote.c \
+$(SDK_ROOT)/components/libraries/scheduler/app_scheduler.c \
+$(SDK_ROOT)/components/libraries/timer/app_timer.c \
+$(SDK_ROOT)/components/libraries/timer/app_timer_appsh.c \
+$(SDK_ROOT)/components/libraries/util/nrf_assert.c \
+$(SDK_ROOT)/components/drivers_nrf/delay/nrf_delay.c \
+$(SDK_ROOT)/components/drivers_nrf/pstorage/pstorage.c \
+$(SDK_ROOT)/components/ble/common/ble_advdata.c \
+$(SDK_ROOT)/components/ble/common/ble_conn_params.c \
+$(SDK_ROOT)/components/ble/common/ble_srv_common.c \
+$(SDK_ROOT)/components/ble/ble_debug_assert_handler/ble_debug_assert_handler.c \
+$(SDK_ROOT)/components/toolchain/system_nrf51.c \
+$(SDK_ROOT)/components/softdevice/common/softdevice_handler/softdevice_handler.c \
+$(SDK_ROOT)/components/drivers_nrf/gpiote/nrf_drv_gpiote.c \
+$(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c \
 
-# SDK includes
-INC_PATHS += -I$(SDK_ROOT)/components/toolchain/gcc
-INC_PATHS += -I$(SDK_ROOT)/components/toolchain
-INC_PATHS += -I$(SDK_ROOT)/examples/bsp
-INC_PATHS += -I$(SDK_ROOT)/components/device
-INC_PATHS += -I$(SDK_ROOT)/components/drivers_nrf/delay
-INC_PATHS += -I$(SDK_ROOT)/components/drivers_nrf/hal
+
+# Softdevice dependent
+INC_PATH += $(SDK_ROOT)/components/softdevice/s110/headers/
+
+# Compailer
+INC_PATH += $(SDK_ROOT)/components/toolchain/cmsis/include/
+
+# Include folders common to all targets
+INC_PATH += $(SDK_ROOT)/components/libraries/util
+INC_PATH += $(SDK_ROOT)/components/drivers_nrf/pstorage
+INC_PATH += $(SDK_ROOT)/components/toolchain/gcc
+INC_PATH += $(SDK_ROOT)/components/toolchain
+INC_PATH += $(SDK_ROOT)/components/ble/common
+INC_PATH += $(SDK_ROOT)/components/drivers_nrf/common
+INC_PATH += $(SDK_ROOT)/components/ble/ble_advertising
+INC_PATH += $(SDK_ROOT)/components/drivers_nrf/config
+INC_PATH += $(SDK_ROOT)/components/libraries/trace
+INC_PATH += $(SDK_ROOT)/components/drivers_nrf/gpiote
+INC_PATH += $(SDK_ROOT)/components/ble/device_manager
+INC_PATH += $(SDK_ROOT)/components/drivers_nrf/uart
+INC_PATH += $(SDK_ROOT)/components/libraries/uart
+INC_PATH += $(SDK_ROOT)/components/device
+INC_PATH += $(SDK_ROOT)/components/softdevice/common/softdevice_handler
+INC_PATH += $(SDK_ROOT)/components/drivers_nrf/delay
+INC_PATH += $(SDK_ROOT)/components/libraries/timer
+INC_PATH += $(SDK_ROOT)/components/drivers_nrf/hal
+INC_PATH += $(SDK_ROOT)/components/libraries/button
+INC_PATH += $(SDK_ROOT)/components/libraries/scheduler
+INC_PATH += $(SDK_ROOT)/components/libraries/fifo
+INC_PATH += $(SDK_ROOT)/components/libraries/fds
+INC_PATH += $(SDK_ROOT)/components/ble/peer_manager
+INC_PATH += $(SDK_ROOT)/components/libraries/sensorsim
+INC_PATH += $(SDK_ROOT)/components/libraries/log
+INC_PATH += $(SDK_ROOT)/components/libraries/log/src
+INC_PATH += $(SDK_ROOT)/components/ble/ble_error_log
+INC_PATH += $(SDK_ROOT)/components/drivers_nrf/ble_flash
+INC_PATH += $(SDK_ROOT)/components/libraries/gpiote
+INC_PATH += $(SDK_ROOT)/components/ble/ble_debug_assert_handler
+INC_PATH += $(SDK_ROOT)/components/drivers_nrf/pstorage
+INC_PATH += $(SDK_ROOT)/components/drivers_nrf/pstorage/config/
+
+
+INC_PATHS := $(foreach path, $(INC_PATH), $(addprefix -I, $(path)))
+
+$(info $$var is [${INC_PATHS}])
 
 #assembly files common to all targets
 ASM_SOURCE_FILES  = $(SDK_ROOT)/components/toolchain/gcc/gcc_startup_nrf51.s
@@ -66,17 +128,28 @@ OUTPUT_BINARY_DIRECTORY = $(OBJECT_DIRECTORY)
 BUILD_DIRECTORIES := $(sort $(OBJECT_DIRECTORY) $(OUTPUT_BINARY_DIRECTORY) $(LISTING_DIRECTORY) )
 
 #flags common to all targets
-CFLAGS  = -DNRF51
+CFLAGS  = -DSOFTDEVICE_PRESENT
+CFLAGS += -DNRF51
+CFLAGS += -DS110
+CFLAGS += -DBLE_STACK_SUPPORT_REQD
 CFLAGS += -DBOARD_PCA20006
-CFLAGS += -DBSP_DEFINES_ONLY
 CFLAGS += -mcpu=cortex-m0
 CFLAGS += -mthumb -mabi=aapcs --std=gnu99
-CFLAGS += -Wall -Werror
+CFLAGS += -Wall
 CFLAGS += -mfloat-abi=soft
-CFLAGS += -DDEBUG -gdwarf-2 -g3 -O0
 # keep every function in separate section. This will allow linker to dump unused functions
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fno-builtin --short-enums
+
+ifeq ($(DEBUG), 1)
+CFLAGS += -g -gdwarf-2 -Og
+else
+CFLAGS += -O3
+endif
+
+ifeq ($(TRACE), 1)
+CFLAGS += -DENABLE_DEBUG_LOG_SUPPORT
+endif
 
 # keep every function in separate section. This will allow linker to dump unused functions
 LDFLAGS += -Xlinker -Map=$(LISTING_DIRECTORY)/$(OUTPUT_FILENAME).map
@@ -89,10 +162,13 @@ LDFLAGS += --specs=nano.specs -lc -lnosys
 
 # Assembler flags
 ASMFLAGS += -x assembler-with-cpp
+ASMFLAGS += -DSOFTDEVICE_PRESENT
 ASMFLAGS += -DNRF51
+ASMFLAGS += -DS110
+ASMFLAGS += -DBLE_STACK_SUPPORT_REQD
 ASMFLAGS += -DBOARD_PCA20006
 ASMFLAGS += -DBSP_DEFINES_ONLY
-ASMFLAGS += -DDEBUG -gdwarf-2 -g3 -O0
+
 #default target - first one defined
 default: clean nrf51822_xxaa
 
@@ -185,3 +261,5 @@ flash:
 	 $(OPENOCD) -d2 -f ./openocd.cfg -c 'init_reset halt; program $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME_).hex verify; reset; exit'
 
 ## Flash softdevice
+flash_sd:
+	 $(OPENOCD) -d2 -f ./openocd.cfg -c 'init_reset halt; program $(SoftDevice_PATH) 0 verify; reset; exit'

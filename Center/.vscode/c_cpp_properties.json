@@ -5,18 +5,42 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/config",
-                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/drivers_nrf/delay",
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/libraries/util",
                 "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/device",
-                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/drivers_nrf/hal"
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/toolchain/gcc",
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/toolchain",
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/softdevice/s110/headers",
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/ble/common",
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/ble/ble_advertising",
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/softdevice/common/softdevice_handler",
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/libraries/timer",
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/ble/device_manager",
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/drivers_nrf/pstorage",
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/libraries/trace",
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/drivers_nrf/hal",
+                "${workspaceFolder}/config",
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/libraries/button",
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/libraries/scheduler",
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/ble/ble_error_log",
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/drivers_nrf/ble_flash",
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/libraries/gpiote",
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/ble/ble_debug_assert_handler"
             ],
-            "defines": ["NRF51 = 1", "BOARD_PCA20006", "BSP_DEFINES_ONLY"],
-            "compilerPath": "/usr/bin/gcc",
+            "defines": [
+                "NRF51",
+                "BOARD_PCA20006",
+                "BSP_DEFINES_ONLY",
+                "ENABLE_DEBUG_LOG_SUPPORT",
+                "S110"
+            ],
+            "compilerPath": "${HOME}/nRF/_tools/gcc-arm-none-eabi-4_9-2015q3-20150921-linux/gcc-arm-none-eabi-4_9-2015q3/bin/arm-none-eabi-gcc",
             "cStandard": "c11",
             "cppStandard": "c++17",
             "intelliSenseMode": "clang-x64",
             "browse": {
                 "path": [
-                    "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components"
+                    "${workspaceFolder}",
+                    "${HOME}/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
