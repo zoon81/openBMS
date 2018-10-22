@@ -24,7 +24,9 @@
                 "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/ble/ble_error_log",
                 "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/drivers_nrf/ble_flash",
                 "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/libraries/gpiote",
-                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/ble/ble_debug_assert_handler"
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/ble/ble_debug_assert_handler",
+                "${workspaceFolder}/inc",
+                "/home/zoon81/nRF/_tools/nRF51_SDK_10.0.0_dc26b5e/components/drivers_nrf/pstorage/config"
             ],
             "defines": [
                 "NRF51",

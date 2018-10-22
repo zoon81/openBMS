@@ -44,6 +44,7 @@
         "ble_flash.h": "c",
         "app_gpiote.h": "c",
         "ble_debug_assert_handler.h": "c",
-        "pstorage_platform.h": "c"
+        "pstorage_platform.h": "c",
+        "string.h": "c"
     }
 }

@@ -45,7 +45,7 @@ OPENOCD			:= openocd
 remduplicates = $(strip $(if $1,$(firstword $1) $(call remduplicates,$(filter-out $(firstword $1),$1))))
 
 #Project sources
-C_SOURCE_FILES = main.c ./config/bsp.c ./our_service.c
+C_SOURCE_FILES = main.c ./ble_bms_service.c ./ble_init.c
 
 # Project includes
 INC_PATH  = ./
@@ -142,7 +142,7 @@ CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fno-builtin --short-enums
 
 ifeq ($(DEBUG), 1)
-CFLAGS += -g -gdwarf-2 -Og
+CFLAGS += -g -gdwarf-2 -O0
 else
 CFLAGS += -O3
 endif
