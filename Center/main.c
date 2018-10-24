@@ -22,6 +22,7 @@
 #include "ble_gap.h"
 #include "ble_init.h"
 #include "ble_gatts.h"
+#include "frame.h"
 
 #define WAKEUP_BUTTON_PIN               BUTTON_0                                /**< Button used to wake up the application. */
 
@@ -257,6 +258,7 @@ static void create_timers()
 int main(void)
 {
     // Initialize
+    frame_init();
     //leds_init();
     timers_init();
     //gpiote_init();
@@ -269,14 +271,15 @@ int main(void)
     conn_params_init();
     sec_params_init();
     battV = 0;
-
     // Start execution
     // Create application timer instances.
     create_timers();
     timers_start();
     advertising_start();
 
-    
+    packet_requestCellVoltage(0x35);
+    uint16_t Vbat;
+    while( !(cell_getVoltage(&Vbat)) );
 
     // Enter main loop
     for (;;)

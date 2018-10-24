@@ -45,7 +45,7 @@ OPENOCD			:= openocd
 remduplicates = $(strip $(if $1,$(firstword $1) $(call remduplicates,$(filter-out $(firstword $1),$1))))
 
 #Project sources
-C_SOURCE_FILES = main.c ./ble_bms_service.c ./ble_init.c
+C_SOURCE_FILES = main.c ./ble_bms_service.c ./ble_init.c ./uart.c ./frame.c
 
 # Project includes
 INC_PATH  = ./
@@ -70,6 +70,11 @@ $(SDK_ROOT)/components/toolchain/system_nrf51.c \
 $(SDK_ROOT)/components/softdevice/common/softdevice_handler/softdevice_handler.c \
 $(SDK_ROOT)/components/drivers_nrf/gpiote/nrf_drv_gpiote.c \
 $(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c \
+$(SDK_ROOT)/components/libraries/fifo/app_fifo.c \
+$(SDK_ROOT)/components/libraries/util/app_util_platform.c \
+$(SDK_ROOT)/components/libraries/uart/retarget.c \
+$(SDK_ROOT)/components/libraries/uart/app_uart_fifo.c \
+$(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c \
 
 
 # Softdevice dependent
