@@ -36,11 +36,8 @@ uint8_t swuart_isTransmitterBusy();
 void swuart_receive();
 uint8_t swuart_availableByte();
 uint8_t swuart_getReceivedByte();
-<<<<<<< HEAD
 void swuart_clearRxFifo();
 void swuart_halt();
-=======
->>>>>>> 0af11edb2c3301e8d9ec7259e5c7c1e7211edd48
 
 
 #endif

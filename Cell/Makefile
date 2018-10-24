@@ -17,11 +17,7 @@
 # project name
 PRJ = cell
 # avr mcu
-<<<<<<< HEAD
 MCU = attiny25
-=======
-MCU = attiny45
->>>>>>> 0af11edb2c3301e8d9ec7259e5c7c1e7211edd48
 # mcu clock frequency
 CLK = 8000000
 # avr programmer (and port if necessary)
