@@ -18,11 +18,13 @@
 #include "app_scheduler.h"
 #include "softdevice_handler.h"
 #include "app_timer_appsh.h"
+
 #include "ble_bms_service.h"
 #include "ble_gap.h"
 #include "ble_init.h"
 #include "ble_gatts.h"
 #include "frame.h"
+#include "systick.h"
 
 #define WAKEUP_BUTTON_PIN               BUTTON_0                                /**< Button used to wake up the application. */
 
@@ -44,7 +46,7 @@
 
 // Application timer ID.
 APP_TIMER_DEF(m_led_a_timer_id);
-
+APP_TIMER_DEF(m_systick_timer_id);
 uint16_t battV;
 
 // Persistent storage system event handler
@@ -115,16 +117,6 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
  */
 
 
-/**@brief Function for the Timer initialization.
- *
- * @details Initializes the timer module.
- */
-static void timers_init(void)
-{
-    // Initialize timer module, making it use the scheduler
-    APP_TIMER_APPSH_INIT(APP_TIMER_PRESCALER, APP_TIMER_MAX_TIMERS, APP_TIMER_OP_QUEUE_SIZE);
-}
-
 // Writing properties of battery pack
 static void props_write_handler(ble_bms_t * p_bms, uint16_t value){
     // if (led_state)
@@ -160,13 +152,6 @@ static void services_init(void)
     
     err_code = ble_bms_init(&m_bms, &init);
     APP_ERROR_CHECK(err_code);
-}
-
-/**@brief Function for starting timers.
-*/
-static void timers_start(void)
-{
-    app_timer_start(m_led_a_timer_id, APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER), NULL);
 }
 
 /**@brief Function for the Event Scheduler initialization.
@@ -231,6 +216,15 @@ static void power_manage(void)
     APP_ERROR_CHECK(err_code);
 }
 
+/**@brief Function for the Timer initialization.
+ *
+ * @details Initializes the timer module.
+ */
+static void timers_init(void)
+{
+    // Initialize timer module, making it use the scheduler
+    APP_TIMER_APPSH_INIT(APP_TIMER_PRESCALER, APP_TIMER_MAX_TIMERS, true);
+}
 
 // Timeout handler for the repeated timer
 static void timer_handler(void * p_context)
@@ -249,8 +243,15 @@ static void create_timers()
     // Create timers
     err_code = app_timer_create(&m_led_a_timer_id,
                                 APP_TIMER_MODE_REPEATED,
-                                timer_handler);
+                                timer_handler);                             
     APP_ERROR_CHECK(err_code);
+}
+
+/**@brief Function for starting timers.
+*/
+static void timers_start(void)
+{
+    app_timer_start(m_led_a_timer_id, APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER), NULL);
 }
 
 /**@brief Function for application main entry.
@@ -274,12 +275,13 @@ int main(void)
     // Start execution
     // Create application timer instances.
     create_timers();
+    systick_init();
     timers_start();
     advertising_start();
-
-    packet_requestCellVoltage(0x35);
+    cell_requestCellVoltage(0x35);
     uint16_t Vbat;
     while( !(cell_getVoltage(&Vbat)) );
+
 
     // Enter main loop
     for (;;)

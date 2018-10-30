@@ -4,38 +4,49 @@
 struct packetbuff_t tmp_packet;
 struct packet_t response_packet;
 
+
 static uint8_t packet_validate(struct packet_t *p);
 static uint8_t packet_genFrameCheck(struct packet_t *p);
 static void packet_send(struct packet_t *p);
 static uint8_t crc8_update(uint8_t crc, uint8_t data);
 
-void frame_init()
-{
+void frame_init(){
     uart_init();
     memset(&tmp_packet, 0, sizeof(tmp_packet));
     memset(&response_packet, 0, sizeof(response_packet));
 }
 
-void uart_InCommingData_handler(uint8_t data)
-{
+static void commonResponse_handler(uint8_t data){
     if ((data == PACKET_MASTER_ADDR) && (tmp_packet.address == 0)){
         tmp_packet.address = data;
         tmp_packet.index++;
+        tmp_packet.timestamp = systick_getSystick();
     }
-    else if ((tmp_packet.address == PACKET_MASTER_ADDR) && (tmp_packet.index < 5)){
-        if (tmp_packet.index == 2){
-            //Upper byte of data field
-            ((uint8_t *)(&tmp_packet))[3] = data;
-            tmp_packet.index++;
+    else if (systick_getElapsedtime(tmp_packet.timestamp) < PACKET_TIMEOUT)
+    {
+        if ((tmp_packet.address == PACKET_MASTER_ADDR) && (tmp_packet.index < 5)){
+            if (tmp_packet.index == 2){
+                //Upper byte of data field
+                ((uint8_t *)(&tmp_packet))[3] = data;
+                tmp_packet.index++;
+                tmp_packet.timestamp = systick_getSystick();
+            }
+            else if (tmp_packet.index == 3){
+                //Lower byte of data field
+                ((uint8_t *)(&tmp_packet))[2] = data;
+                tmp_packet.index++;
+                tmp_packet.timestamp = systick_getSystick();
+            }
+            else{
+                ((uint8_t *)(&tmp_packet))[tmp_packet.index] = data;
+                tmp_packet.index++;
+                tmp_packet.timestamp = systick_getSystick();
+            }
         }
-        else if (tmp_packet.index == 3){
-            //Lower byte of data field
-            ((uint8_t *)(&tmp_packet))[2] = data;
-            tmp_packet.index++;
-        } else {
-            ((uint8_t *)(&tmp_packet))[tmp_packet.index] = data;
-            tmp_packet.index++;
-        }
+    }
+    // Packet reveive TIMEOUT, drop the packet
+    else{
+        memset(&tmp_packet, 0, sizeof(tmp_packet));
     }
     // Receiving packet DONE, validate and copy to the final buffer
     if (tmp_packet.index > 4){
@@ -49,17 +60,22 @@ void uart_InCommingData_handler(uint8_t data)
     }
 }
 
-uint8_t packet_isResponseAvailable()
-{
+// Parsing cellVoltage packet, this function called by the uart IRQ handler if we requested the cellVoltage from the clien
+void CellVoltageResponse_handler(uint8_t data){
+    commonResponse_handler(data);
+}
+
+void CellStatusResponse_handler(uint16_t data){
+    commonResponse_handler(data);
+}
+uint8_t packet_isResponseAvailable(){
     return response_packet.address == PACKET_MASTER_ADDR ? 1 : 0;
 }
+
 // Get the response of the CellVoltage request
-uint8_t cell_getVoltage(uint16_t *Vbat)
-{
-    if (packet_isResponseAvailable())
-    {
-        if (response_packet.command == PACKET_CMD_BAT_V)
-        {
+uint8_t cell_getVoltage(uint16_t *Vbat){
+    if (packet_isResponseAvailable()){
+        if (response_packet.command == PACKET_CMD_BAT_V){
             *Vbat = response_packet.data;
             memset(&response_packet, 0, sizeof(response_packet));
             return 1;
@@ -67,24 +83,44 @@ uint8_t cell_getVoltage(uint16_t *Vbat)
     }
     return 0;
 }
+// When we start balancing, we get the cell status in data field
+uint8_t cell_getStatus(uint16_t *status){
+    if (packet_isResponseAvailable()){
+        if (response_packet.command == PACKET_CMD_BALLANCE){
+            *status = response_packet.data;
+            memset(&response_packet, 0, sizeof(response_packet));
+            return 1;
+        }
+    }
+    return 0;
+}
 
-uint16_t packet_requestCellVoltage(uint8_t celladdress)
-{
+// Send a request for cell voltage
+uint16_t cell_requestCellVoltage(uint8_t celladdress){
     struct packet_t pkg;
     pkg.address = celladdress;
     pkg.command = PACKET_CMD_BAT_V;
     pkg.data = 0;
     pkg.crc = packet_genFrameCheck(&pkg);
+    uart_setIncommingDataHandler(CellVoltageResponse_handler);
     packet_send(&pkg);
 }
 
-static uint8_t packet_validate(struct packet_t *p)
-{
+uint32_t cell_doBallance(uint8_t celladdress, uint16_t Vbat){
+    struct packet_t pkg;
+    pkg.address = celladdress;
+    pkg.command = PACKET_CMD_BALLANCE;
+    pkg.data = Vbat;
+    pkg.crc = packet_genFrameCheck(&pkg);
+    uart_setIncommingDataHandler(CellStatusResponse_handler);
+    packet_send(&pkg);
+}
+
+static uint8_t packet_validate(struct packet_t *p){
     return packet_genFrameCheck(&(*p)) == p->crc ? 1 : 0;
 }
 
-static uint8_t packet_genFrameCheck(struct packet_t *p)
-{
+static uint8_t packet_genFrameCheck(struct packet_t *p){
     uint8_t crc = 0;
     crc = crc8_update(crc, p->address);
     crc = crc8_update(crc, p->command);
@@ -93,8 +129,7 @@ static uint8_t packet_genFrameCheck(struct packet_t *p)
     return crc;
 }
 
-static void packet_send(struct packet_t *p)
-{
+static void packet_send(struct packet_t *p){
     app_uart_put(p->address);
     app_uart_put(p->command);
     app_uart_put((uint8_t)((p->data) >> 8));
@@ -102,8 +137,7 @@ static void packet_send(struct packet_t *p)
     app_uart_put(p->crc);
 }
 
-static uint8_t crc8_update(uint8_t crc, uint8_t data)
-{
+static uint8_t crc8_update(uint8_t crc, uint8_t data){
     crc ^= data;
     for (uint8_t i = 8; i; --i)
     {

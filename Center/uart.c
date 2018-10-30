@@ -1,5 +1,8 @@
 #include "uart.h"
 
+void (*uart_InCommingData_handler)(uint8_t);
+
+// General UART IRQ handler
 void uart_irq_handle(app_uart_evt_t * p_event)
 {
     if (p_event->evt_type == APP_UART_COMMUNICATION_ERROR)
@@ -17,8 +20,10 @@ void uart_irq_handle(app_uart_evt_t * p_event)
     }
 }
 
+
 uint32_t uart_init(){
 
+    uart_InCommingData_handler = NULL;
     uint32_t err_code;
     const app_uart_comm_params_t comm_params =
       {
@@ -39,4 +44,9 @@ uint32_t uart_init(){
                          err_code);
 
     return err_code;
+}
+
+// Set the handler function for incomming data over UART
+void uart_setIncommingDataHandler( void (*inCommingDataHandler)(uint8_t) ){
+    uart_InCommingData_handler = inCommingDataHandler;
 }

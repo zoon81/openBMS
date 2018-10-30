@@ -15,7 +15,7 @@
 #define UART_RX_BUF_SIZE 2                           /**< UART RX buffer size. */
 
 uint32_t uart_init();
-void uart_InCommingData_handler(uint8_t data);
+void uart_setIncommingDataHandler( void (*inCommingDataHandler)(uint8_t) );
 
 
 #endif

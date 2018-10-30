@@ -45,7 +45,7 @@ OPENOCD			:= openocd
 remduplicates = $(strip $(if $1,$(firstword $1) $(call remduplicates,$(filter-out $(firstword $1),$1))))
 
 #Project sources
-C_SOURCE_FILES = main.c ./ble_bms_service.c ./ble_init.c ./uart.c ./frame.c
+C_SOURCE_FILES = main.c ./ble_bms_service.c ./ble_init.c ./uart.c ./frame.c ./systick.c
 
 # Project includes
 INC_PATH  = ./
@@ -75,6 +75,7 @@ $(SDK_ROOT)/components/libraries/util/app_util_platform.c \
 $(SDK_ROOT)/components/libraries/uart/retarget.c \
 $(SDK_ROOT)/components/libraries/uart/app_uart_fifo.c \
 $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c \
+$(SDK_ROOT)/components/drivers_nrf/timer/nrf_drv_timer.c \
 
 
 # Softdevice dependent
@@ -116,6 +117,7 @@ INC_PATH += $(SDK_ROOT)/components/libraries/gpiote
 INC_PATH += $(SDK_ROOT)/components/ble/ble_debug_assert_handler
 INC_PATH += $(SDK_ROOT)/components/drivers_nrf/pstorage
 INC_PATH += $(SDK_ROOT)/components/drivers_nrf/pstorage/config/
+INC_PATH += $(SDK_ROOT)/components/drivers_nrf/timer
 
 
 INC_PATHS := $(foreach path, $(INC_PATH), $(addprefix -I, $(path)))
