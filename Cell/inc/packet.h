@@ -3,12 +3,13 @@
 
 #include <inttypes.h>
 
-#define PACKET_MASTER_ADDRESS 0x11
+#define PACKET_MASTER_ADDRESS   0x11
 #define PACKET_CMD_BAT_V        0x33
 #define PACKET_CMD_BAT_V_FAST   0x35
 #define PACKET_CMD_TEMP         0xC6
 #define PACKET_CMD_BALLANCE     0x55
 #define PACKET_CMD_PING         0xE9
+#define PACKET_CMD_STATUS       0xE5
 
 #define PACKET_TIMEOUT 5
 #define PACKET_SIZE 5
