@@ -11,6 +11,14 @@ static void packet_send(struct packet_t *p);
 static uint8_t crc8_update(uint8_t crc, uint8_t data);
 
 void frame_init(){
+
+    nrf_gpio_cfg_output(UART_PIN_TX1);
+    nrf_gpio_pin_set(UART_PIN_TX1);
+    nrf_gpio_cfg_output(UART_PIN_TX2);
+    nrf_gpio_pin_set(UART_PIN_TX2);
+    nrf_gpio_cfg_output(UART_PIN_TX3);
+    nrf_gpio_pin_set(UART_PIN_TX3);
+
     uart_init();
     memset(&tmp_packet, 0, sizeof(tmp_packet));
     memset(&response_packet, 0, sizeof(response_packet));
@@ -98,7 +106,8 @@ uint8_t cell_getStatus(uint16_t *status){
 // Send a request for cell voltage
 uint16_t cell_requestCellVoltage(uint8_t celladdress){
     struct packet_t pkg;
-    pkg.address = celladdress;
+    pkg.channel = celladdress;
+    pkg.address = 0x35;
     pkg.command = PACKET_CMD_BAT_V;
     pkg.data = 0;
     pkg.crc = packet_genFrameCheck(&pkg);
@@ -130,6 +139,7 @@ static uint8_t packet_genFrameCheck(struct packet_t *p){
 }
 
 static void packet_send(struct packet_t *p){
+    uart_setRxTxPin(RX_PIN_BY_ADDRESS(p->channel),TX_PIN_BY_ADDRESS(p->channel));
     app_uart_put(p->address);
     app_uart_put(p->command);
     app_uart_put((uint8_t)((p->data) >> 8));
