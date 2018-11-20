@@ -15,37 +15,28 @@ uint8_t systick_250ms_counter = 0;
 void main(){
     
     swuart_init();
-    adc_init();
+    
     // Ballancing task scheduler
     // Init TIMER1 in CTC mode, IRQ in every 250ms
     // Timer not stared here.
     OCR1C = 244;
     TIMSK |= (1 << TOIE1);
     TCCR1 |= (1 << CTC1) |(1 << PWM1A);
-
-    DDRB |= (1 << DD0) | (1 << DD1);
-    swuart_transmit(0x55);
-    while(swuart_isTransmitterBusy());
-
-    // while(1){
-    //     char buff[6];
-    //     uint16_t batv = adc_getVcc();
-    //     uint16_to_str(buff, batv);
-    //     puts_uart("\r\n");
-    //     puts_uart(buff);
-    //     _delay_ms(500);
-    //     _delay_ms(500);
-    //     _delay_ms(500);
-    // }
     
     while(1){
         uint8_t msec_counter = 0;
         struct packet_t p;
+        // Activate INT0 interrupt, this will wake up the device
         swuart_receive();
-        
+
+        //Turn off adc to save power and go sleep
+        adc_deinit();
         set_sleep_mode(SLEEP_MODE_PWR_DOWN);
         sleep_mode();
 
+        // We land here after wake up (INT0 goes low)
+        
+        // The first ADC conversion result after switching voltage reference source maybe inaccurate, and the user is advised to discard this result.
         while(swuart_availableByte() == 0 );
         uint8_t dev_addr = swuart_getReceivedByte();
         //This packet is for me?
@@ -65,12 +56,16 @@ void main(){
                 p.data |= swuart_getReceivedByte();
                 p.crc = swuart_getReceivedByte();
                 if ( packet_validate(&p) ){
-                    switch (p.command)
-                    {
-                    case PACKET_CMD_PING:
+                    switch (p.command){
+                    case PACKET_CMD_PING:{
                         swuart_transmit(DEVICE_ADDRESS);
                         break;
-                    case PACKET_CMD_BAT_V:;
+                        }
+                    case PACKET_CMD_BAT_V:;{
+                        adc_init();
+                        // delay for internal reference stabilization
+                        _delay_ms(2);
+                        adc_getVcc();
                         uint16_t bat_v = adc_getVcc();
                         struct packet_t resp;
                         resp.address = PACKET_MASTER_ADDRESS;
@@ -79,15 +74,23 @@ void main(){
                         resp.crc = packet_genFrameCheck(&resp);
                         packet_send(&resp);
                         break;
-                    case PACKET_CMD_BALLANCE:
-                        ballanceV = resp.data;
+                        }
+                    case PACKET_CMD_BALLANCE:{
+                        ballanceV = p.data;
                         TCNT1 = 0;
                         // Start Timer1
                         do_ballance();
                         TCCR1 |= 3;
+                        struct packet_t resp;
+                        resp.address = PACKET_MASTER_ADDRESS;
+                        resp.command = p.command;
+                        resp.data = status;
+                        resp.crc = packet_genFrameCheck(&resp);
+                        packet_send(&resp);
                         break;
-                    default:
-                        break;
+                        }
+                    default:{
+                        break;}
                     }
                 }
                 while (swuart_isTransmitterBusy())

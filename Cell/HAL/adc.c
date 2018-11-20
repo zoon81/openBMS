@@ -5,6 +5,11 @@ void adc_init(){
     ADMUX = 12; //Bandgap
 }
 
+void adc_deinit(){
+    ADCSRA = 0;
+    ADMUX = 0;
+}
+
 uint16_t adc_getVcc(){
     ADCSRA |= (1 << ADSC);
     while( ! (ADCSRA & (1 << ADIF)));
