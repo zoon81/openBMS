@@ -85,9 +85,13 @@ flash: all
 fuse:
 	$(AVRDUDE) -U lfuse:w:$(LFU):m -U hfuse:w:$(HFU):m -U efuse:w:$(EFU):m
 
-# write fuses to mcu
-eeprom:
+# write eeprom to mcu
+eeprom_write:
 	$(AVRDUDE) -U eeprom:w:$(EEPROM_IMG):r
+
+# read eeprom to mcu
+eeprom_read:
+	$(AVRDUDE) -U eeprom:r:$(EEPROM_IMG):r
 
 # generate disassembly files for debugging
 disasm: $(PRJ).elf
