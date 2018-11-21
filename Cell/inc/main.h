@@ -20,4 +20,10 @@
 #define STATUS_BALLANC_INPROGGRESS  2
 #define STATUS_BALLANC_DONE         4
 
+// EEPROM Data Definitions
+#define EE_BGREFCALKEY_ADDR             0x00
+#define EE_BGREFCALVALUE_H_ADDR         0x01
+#define EE_BGREFCALVALUE_L_ADDR         0x02
+#define EE_BGREFCALKEY                  0x59
+
 #endif
