@@ -52,9 +52,9 @@ void swuart_init() {
 
 void swuart_transmit(uint8_t data){
     // wait until we get free space in fifo
-    PORTB |= (1 << PB0);
+    //PORTB |= (1 << PB0);
     while( fifo_push(&tx_fifo, data) ){};
-    PORTB &= ~(1 << PB0);
+    //PORTB &= ~(1 << PB0);
     //transreceiver_mode = MODE_TRANSMITTER;
     status = SW_UART_STATUS_TRANSMIT | SW_UART_STATUS_BUSY;
     TCCR0B |= TIMER_PRESCALER_8;

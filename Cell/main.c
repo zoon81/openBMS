@@ -6,6 +6,9 @@
 #include "adc.h"
 #include "util.h"
 
+// #define ENABLE_DEBUG_LED
+#define DEBUG_LED_PIN PB3
+
 void do_ballance();
 
 uint8_t status = STATUS_IDLE;
@@ -13,6 +16,9 @@ uint16_t ballanceV = 0;
 uint8_t systick_250ms_counter = 0;
 
 void main(){
+    //Balance port config
+    DDRB |= (1 << DISCHARGE_PORT);
+    
     // Check for badgap reference calibration value
     uint8_t bgrefcalkey = EEPROM_read(EE_BGREFCALKEY_ADDR);
     if(bgrefcalkey == EE_BGREFCALKEY){
@@ -22,6 +28,13 @@ void main(){
         adc_setCalibrationValue(calibration_value);
     } else{
         // Calibrating internal voltage reference, we expect that the device is powered from 3300mV
+        #ifdef ENABLE_DEBUG_LED
+        DDRB |= (1 << DEBUG_LED_PIN);
+        PORTB |=  (1 << DEBUG_LED_PIN);
+        _delay_ms(1000);
+        PORTB &=  ~(1 << DEBUG_LED_PIN);
+        DDRB &= ~(1 << DEBUG_LED_PIN);
+        #endif
         adc_init();
         _delay_ms(1000);
         adc_getRawVcc();
@@ -40,14 +53,13 @@ void main(){
         //EEPROM_write(0x06, tmpvalue >> 16);
         //EEPROM_write(0x07, tmpvalue >> 8);
         //EEPROM_write(0x08, tmpvalue & 0xFF);
-        
         adc_setCalibrationValue(calibration_value);
     }
 
-    //adc_setCalibrationValue(ADC_BANDGAP_mV_cal);
+    // adc_setCalibrationValue(ADC_BANDGAP_mV_cal);
     
     swuart_init();
-    
+
     // Ballancing task scheduler
     // Init TIMER1 in CTC mode, IRQ in every 250ms
     // Timer not stared here.
@@ -60,7 +72,7 @@ void main(){
         struct packet_t p;
         // Activate INT0 interrupt, this will wake up the device
         swuart_receive();
-
+        // To-Do: Disable sleep mode when cellballancing in progress
         //Turn off adc to save power and go sleep
         adc_deinit();
         set_sleep_mode(SLEEP_MODE_PWR_DOWN);
@@ -91,17 +103,16 @@ void main(){
                         swuart_transmit(DEVICE_ADDRESS);
                         break;
                     }
-                    case PACKET_CMD_BAT_V:;{
+                    case PACKET_CMD_BAT_V:{
                         adc_init();
                         // delay for internal reference stabilization
                         _delay_ms(2);
                         // The first ADC conversion result after switching voltage reference source maybe inaccurate, and the user is advised to discard this result.
-                        adc_getVcc();
-                        uint16_t bat_v = adc_getVcc();
+                        adc_getRawVcc();
                         struct packet_t resp;
                         resp.address = PACKET_MASTER_ADDRESS;
                         resp.command = p.command;
-                        resp.data = bat_v;
+                        resp.data = adc_getVcc();
                         resp.crc = packet_genFrameCheck(&resp);
                         packet_send(&resp);
                         break;

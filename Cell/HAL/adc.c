@@ -1,5 +1,5 @@
 #include "adc.h"
-
+#include "util/delay.h"
 int16_t bandgap_calibration_value = 0;
 
 void adc_init(){
@@ -16,12 +16,11 @@ void adc_setCalibrationValue(int16_t calibration_value){
     bandgap_calibration_value = calibration_value;
 }
 uint16_t adc_getRawVcc(){
-    ADCSRA |= (1 << ADSC);
-    while( ! (ADCSRA & (1 << ADIF)));
-    uint16_t ad_val = ADCH;
-    ad_val <<= 8;
-    ad_val |= ADCL;
-    return ad_val;
+    uint16_t result;
+    ADCSRA |= (1<<ADSC); // Convert
+    while ( ADCSRA & (1 << ADSC));
+    result = ADCW;
+    return result; // Back-calculate AVcc in mV
 }
 uint16_t adc_getAvgRawVcc(uint8_t samples){
     if(samples > 64){
@@ -38,6 +37,6 @@ uint16_t adc_getAvgRawVcc(uint8_t samples){
 }
 
 uint16_t adc_getVcc(){
-    uint16_t ad_val = adc_getAvgRawVcc(32);
+    uint16_t ad_val = adc_getAvgRawVcc(16);
     return ((uint32_t)(ADC_BANDGAP_mV_stock - bandgap_calibration_value)) * ADC_MAXVALUE / ad_val;
 }

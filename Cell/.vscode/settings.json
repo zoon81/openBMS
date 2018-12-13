@@ -21,7 +21,8 @@
         "fuse.h": "c",
         "lock.h": "c",
         "fifo.h": "c",
-        "packet.h": "c"
+        "packet.h": "c",
+        "eeprom.h": "c"
     },
     "editor.fontSize": 14
 }
