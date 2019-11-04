@@ -19,17 +19,9 @@
 #define STATUS_BALLANC_INPROGGRESS  2
 #define STATUS_BALLANC_DONE         4
 
-#define CELL1_ADDR 0
-#define CELL2_ADDR 1
-#define CELL3_ADDR 2
-
-// Uart communication GPIO def, each cell has a unique interface
-#define UART_PIN_TX1    1
-#define UART_PIN_RX1    2
-#define UART_PIN_TX2    3
-#define UART_PIN_RX2    4
-#define UART_PIN_TX3    5
-#define UART_PIN_RX4    6
+#define CELL1_ADDR 2
+#define CELL2_ADDR 3
+#define CELL3_ADDR 4
 
 #define RX_PIN_BY_ADDRESS(ADDRESS) (((ADDRESS) * 2) + 2)
 #define TX_PIN_BY_ADDRESS(ADDRESS) (((ADDRESS) * 2) + 1)

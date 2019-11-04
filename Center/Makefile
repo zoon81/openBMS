@@ -44,14 +44,25 @@ OPENOCD			:= openocd
 #function for removing duplicates in a list
 remduplicates = $(strip $(if $1,$(firstword $1) $(call remduplicates,$(filter-out $(firstword $1),$1))))
 
-#Project sources
-C_SOURCE_FILES = main.c ./ble_bms_service.c ./ble_init.c ./uart.c ./frame.c ./systick.c
+# Project sources
+C_SOURCE_FILES = main.c \
+				./bms.c \
+				./frame.c \
+				./systick.c \
+				./ble/ble_bms_service.c \
+				./ble/ble_init.c \
+				./driver/twi.c \
+				./driver/uart.c \
+				./driver/ina219.c \
 
 # Project includes
 INC_PATH  = ./
-INC_PATH  += ./config/ ./inc/
+INC_PATH  += ./config/ ./inc/ ./driver/inc/
 
-	# Libs
+# Project LIBS
+LIBS = -lm
+
+# Libs
 C_SOURCE_FILES += \
 $(SDK_ROOT)/components/libraries/button/app_button.c \
 $(SDK_ROOT)/components/libraries/util/app_error.c \
@@ -76,6 +87,8 @@ $(SDK_ROOT)/components/libraries/uart/retarget.c \
 $(SDK_ROOT)/components/libraries/uart/app_uart_fifo.c \
 $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c \
 $(SDK_ROOT)/components/drivers_nrf/timer/nrf_drv_timer.c \
+$(SDK_ROOT)/components/drivers_nrf/twi_master/nrf_drv_twi.c \
+$(SDK_ROOT)/components/libraries/mem_manager/mem_manager.c \
 
 
 # Softdevice dependent
@@ -116,8 +129,10 @@ INC_PATH += $(SDK_ROOT)/components/drivers_nrf/ble_flash
 INC_PATH += $(SDK_ROOT)/components/libraries/gpiote
 INC_PATH += $(SDK_ROOT)/components/ble/ble_debug_assert_handler
 INC_PATH += $(SDK_ROOT)/components/drivers_nrf/pstorage
-INC_PATH += $(SDK_ROOT)/components/drivers_nrf/pstorage/config/
+INC_PATH += $(SDK_ROOT)/components/drivers_nrf/pstorage/config
 INC_PATH += $(SDK_ROOT)/components/drivers_nrf/timer
+INC_PATH += $(SDK_ROOT)/components/drivers_nrf/twi_master
+INC_PATH += $(SDK_ROOT)/components/libraries/mem_manager
 
 
 INC_PATHS := $(foreach path, $(INC_PATH), $(addprefix -I, $(path)))

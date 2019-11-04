@@ -11,13 +11,13 @@ static void packet_send(struct packet_t *p);
 static uint8_t crc8_update(uint8_t crc, uint8_t data);
 
 void frame_init(){
-
-    nrf_gpio_cfg_output(UART_PIN_TX1);
-    nrf_gpio_pin_set(UART_PIN_TX1);
-    nrf_gpio_cfg_output(UART_PIN_TX2);
-    nrf_gpio_pin_set(UART_PIN_TX2);
-    nrf_gpio_cfg_output(UART_PIN_TX3);
-    nrf_gpio_pin_set(UART_PIN_TX3);
+    // To-Do: Get a better solution for configuring GPIOs
+    nrf_gpio_cfg_output(TX_PIN_BY_ADDRESS(CELL1_ADDR));
+    nrf_gpio_pin_set(TX_PIN_BY_ADDRESS(CELL1_ADDR));
+    nrf_gpio_cfg_output(TX_PIN_BY_ADDRESS(CELL2_ADDR));
+    nrf_gpio_pin_set(TX_PIN_BY_ADDRESS(CELL2_ADDR));
+    nrf_gpio_cfg_output(TX_PIN_BY_ADDRESS(CELL3_ADDR));
+    nrf_gpio_pin_set(TX_PIN_BY_ADDRESS(CELL3_ADDR));
 
     uart_init();
     memset(&tmp_packet, 0, sizeof(tmp_packet));

@@ -3,10 +3,19 @@
 
 #include "twi.h"
 
-#define INA219_ADDRESS_R 0x41
-#define INA219_ADDRESS_W 0x40
+#define INA219_SLAVE_ADDRESS 0x40
+#define INA_COM_TIMEOUT 10
 
-#define INA_CONFIG_REG_ADDRESS 0x00
+#define REG_ADDR_CONFIG         0x00
+#define REG_ADDR_SHUNTVOLTAGE   0x01
+#define REG_ADDR_BUSVOLTAGE     0x02
+#define REG_ADDR_POWER          0x03
+#define REG_ADDR_CURRENT        0x04
+#define REG_ADDR_CALIBRATION    0x05
+
+
+// ### CONFIGURATION REGISTER ###
+// Bus VOltage Range
 #define CFG_BUSVOLTAGE_RANGE_32V 1
 #define CFG_BUSVOLTAGE_RANGE_16V 0
 
@@ -52,14 +61,6 @@
 #define CFG_OPMODE_SHUTVOLTAGE_CONT                 6
 #define CFG_OPMODE_BUS_AND_SHUTVOLTAGE_CONT         7
 
-// Here you can set the Config register initial value
-#define CFG_RESET_BIT                   0
-#define CFG_BUSVOLTAGE_RANGE            CFG_BUSVOLTAGE_RANGE_32V
-#define CFG_PGA                         CFG_PGA_320mV
-#define CFG_BADC_RES_AVG                CFG_BADC_RES_AVG_12bit
-#define CFG_SADC_RES_AVG                CFG_SADC_RES_AVG_12bit
-#define CFG_OPMODE                      CFG_OPMODE_POWERDOWN
-
 // Offsets for CONFIG reg.
 #define CFG_RESET_OFFSET                15
 #define CFG_BUSVOLTAGE_RANGE_OFFSET     13
@@ -68,6 +69,30 @@
 #define CFG_SADC_RES_AVG_OFFSET         3
 #define CFG_OPMODE_OFFSET               0
 
+// Here you can set the Config register initial value
+#define CFG_RESET_BIT                   0
+#define CFG_BUSVOLTAGE_RANGE            CFG_BUSVOLTAGE_RANGE_32V
+#define CFG_PGA                         CFG_PGA_320mV
+#define CFG_BADC_RES_AVG                CFG_BADC_RES_AVG_16samples
+#define CFG_SADC_RES_AVG                CFG_SADC_RES_AVG_16samples
+#define CFG_OPMODE                      CFG_OPMODE_POWERDOWN
+
+// Mask for various bits
+#define MASK_BVR_OVERFLOW           0x0001
+#define MASK_BVR_CONVERSION_READY   0x0002
+#define MASK_CR_SIGN                0x8000
+
+// Calibration Register
+#define Rshunt  0.1
+#define CFG_PGA_CAL 0.320
+#define INA_CURRENT_CALIBRATION_REG_VALUE 0.04096 / (CURRENT_LSB * Rshunt)
+
 #define INA_CONFIG_REG_INIT_VALUE (CFG_RESET_BIT << CFG_RESET_OFFSET) | (CFG_BUSVOLTAGE_RANGE << CFG_BUSVOLTAGE_RANGE_OFFSET) | (CFG_PGA << CFG_PGA_OFFSET) | (CFG_BADC_RES_AVG << CFG_BADC_RES_AVG_OFFSET) | (CFG_SADC_RES_AVG << CFG_SADC_RES_AVG_OFFSET) | (CFG_OPMODE << CFG_OPMODE_OFFSET)
+
+void ina219_init();
+uint8_t ina219_startConversion();
+uint8_t ina219_powerDown();
+ret_code_t ina219_requestBusVoltage();
+ret_code_t ina219_requestCurrent();
 
 #endif

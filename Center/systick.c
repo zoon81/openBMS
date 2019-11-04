@@ -3,7 +3,7 @@
 const nrf_drv_timer_t TIMER_LED = NRF_DRV_TIMER_INSTANCE(1);
 volatile uint32_t systick_ms;
 
-void timer_led_event_handler(nrf_timer_event_t event_type, void* p_context)
+void timer_event_handler(nrf_timer_event_t event_type, void* p_context)
 {
     switch(event_type)
     {
@@ -19,7 +19,7 @@ void timer_led_event_handler(nrf_timer_event_t event_type, void* p_context)
 
 void systick_init(){
     
-    uint32_t err_code = nrf_drv_timer_init(&TIMER_LED, NULL, timer_led_event_handler);
+    uint32_t err_code = nrf_drv_timer_init(&TIMER_LED, NULL, timer_event_handler);
     APP_ERROR_CHECK(err_code);
     
    uint32_t time_ticks = nrf_drv_timer_ms_to_ticks(&TIMER_LED, 1);

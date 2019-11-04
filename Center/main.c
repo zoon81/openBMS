@@ -18,6 +18,7 @@
 #include "app_scheduler.h"
 #include "softdevice_handler.h"
 #include "app_timer_appsh.h"
+#include "nrf_drv_gpiote.h"
 
 #include "ble_bms_service.h"
 #include "ble_gap.h"
@@ -25,14 +26,12 @@
 #include "ble_gatts.h"
 #include "frame.h"
 #include "systick.h"
+#include "bms.h"
 
 #define WAKEUP_BUTTON_PIN               BUTTON_0                                /**< Button used to wake up the application. */
 
 #define ADVERTISING_LED_PIN_NO          LED_0                                   /**< Is on when device is advertising. */
 #define CONNECTED_LED_PIN_NO            LED_1                                   /**< Is on when device has connected. */
-
-#define LEDBUTTON_LED_PIN_NO            LED_0
-#define LEDBUTTON_BUTTON_PIN_NO         BUTTON_1
 #define APP_TIMER_MAX_TIMERS            2                                           /**< Maximum number of simultaneously created timers. */
 #define APP_TIMER_OP_QUEUE_SIZE         4                                           /**< Size of timer operation queues. */
 
@@ -134,7 +133,7 @@ static void props_write_handler(ble_bms_t * p_bms, uint16_t value){
     gattVal.p_value = (uint8_t*) &value;
 
     uint32_t err_code = sd_ble_gatts_value_set(p_bms->conn_handle,
-                                            p_bms->bat_pack_props_char_handles.value_handle,
+                                            p_bms->bat_pack_desc_char_handles.value_handle,
                                             &gattVal);
     if (err_code != NRF_SUCCESS){
 		APP_ERROR_CHECK(err_code);
@@ -220,18 +219,26 @@ static void power_manage(void)
  *
  * @details Initializes the timer module.
  */
-static void timers_init(void)
-{
+static void timers_init(void){
     // Initialize timer module, making it use the scheduler
     APP_TIMER_APPSH_INIT(APP_TIMER_PRESCALER, APP_TIMER_MAX_TIMERS, true);
 }
 
+void bms_collectData_scheduler_event_handler(void *p_event_data, uint16_t event_size){
+    bms_collectData();
+}
+
+void bms_updateBLEData_scheduler_event_handler(void *p_event_data, uint16_t event_size){
+    bms_updateBLEData();
+}
+
 // Timeout handler for the repeated timer
-static void timer_handler(void * p_context)
-{
+static void timer_handler(void * p_context){
+    app_sched_event_put(NULL, 0, bms_collectData_scheduler_event_handler);
     if(m_bms.conn_handle != BLE_CONN_HANDLE_INVALID){
-        ble_bms_on_packVoltage_change(&m_bms, battV);
-        battV++;
+        app_sched_event_put(NULL, 0, bms_updateBLEData_scheduler_event_handler);
+        // ble_bms_on_packVoltage_change(&m_bms, battV);
+        // battV++;
     }
 }
 
@@ -254,15 +261,46 @@ static void timers_start(void)
     app_timer_start(m_led_a_timer_id, APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER), NULL);
 }
 
+void wakeup_button_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
+{
+    //nrf_drv_gpiote_out_toggle(PIN_OUT);
+}
+/**
+ * @brief Function for configuring: PIN_IN pin for input, PIN_OUT pin for output, 
+ * and configures GPIOTE to give an interrupt on pin change.
+ */
+static void gpio_init(void){
+    ret_code_t err_code;
+
+    err_code = nrf_drv_gpiote_init();
+    APP_ERROR_CHECK(err_code);
+    
+    nrf_drv_gpiote_out_config_t out_config = GPIOTE_CONFIG_OUT_SIMPLE(false);
+
+    err_code = nrf_drv_gpiote_out_init(ADVERTISING_LED_PIN_NO, &out_config);
+    APP_ERROR_CHECK(err_code);
+
+    nrf_drv_gpiote_in_config_t in_config = GPIOTE_CONFIG_IN_SENSE_TOGGLE(true);
+    in_config.pull = NRF_GPIO_PIN_PULLUP;
+
+    err_code = nrf_drv_gpiote_in_init(WAKEUP_BUTTON_PIN, &in_config, wakeup_button_pin_handler);
+    APP_ERROR_CHECK(err_code);
+
+    nrf_drv_gpiote_in_event_enable(WAKEUP_BUTTON_PIN, true);
+}
+
 /**@brief Function for application main entry.
  */
+
+// LASTLOG
+// Bms Data show invalid value in cellVoltage
 int main(void)
 {
     // Initialize
     frame_init();
     //leds_init();
     timers_init();
-    //gpiote_init();
+    gpio_init();
     //buttons_init();
     ble_stack_init();
     scheduler_init();    
@@ -278,10 +316,11 @@ int main(void)
     systick_init();
     timers_start();
     advertising_start();
-    cell_requestCellVoltage(0x35);
-    uint16_t Vbat;
-    while( !(cell_getVoltage(&Vbat)) );
 
+    bms_init(CELL_COUNT);
+    bms_collectData();
+
+    
 
     // Enter main loop
     for (;;)

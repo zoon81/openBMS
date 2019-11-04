@@ -126,8 +126,10 @@ static uint32_t led_char_add(ble_lbs_t * p_lbs, const ble_lbs_init_t * p_lbs_ini
  */
 static uint32_t button_char_add(ble_lbs_t * p_lbs, const ble_lbs_init_t * p_lbs_init)
 {
+    //  metadata structure for the characteristic, which has information about what properties are available (read, write, notification, and so on)
     ble_gatts_char_md_t char_md;
     ble_gatts_attr_md_t cccd_md;
+    //  description of the value attribute, which contains its UUID, length, and initial value
     ble_gatts_attr_t    attr_char_value;
     ble_uuid_t          ble_uuid;
     ble_gatts_attr_md_t attr_md;
@@ -171,6 +173,7 @@ static uint32_t button_char_add(ble_lbs_t * p_lbs, const ble_lbs_init_t * p_lbs_
     
     return sd_ble_gatts_characteristic_add(p_lbs->service_handle, &char_md,
                                                &attr_char_value,
+                                               //  filled with a unique set of handles for the characteristic and potential descriptors. The handles can be used later to identify the characteristic, for example, to identify which characteristic was written in a write event
                                                &p_lbs->button_char_handles);
 }
 
