@@ -9,7 +9,8 @@ import package as pkg
 
 def main(argv):
     baudrate = 9600
-    serila_port = "/dev/ttyUSB0"
+    #serila_port = "/dev/ttyUSB0"
+    serila_port = "/dev/cu.usbserial-00000000"
     try:
         opts, args = getopt.getopt(argv,"hp:b:",["port=","baudrate="])
     except getopt.GetoptError:

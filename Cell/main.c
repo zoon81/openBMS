@@ -4,10 +4,10 @@
 #include "eeprom_api.h"
 #include "packet.h"
 #include "adc.h"
-#include "util.h"
+// #include "util.h"
 
-// #define ENABLE_DEBUG_LED
-#define DEBUG_LED_PIN PB3
+#define ENABLE_DEBUG_LED
+#define DEBUG_LED_PIN PB0
 
 void do_ballance();
 
@@ -18,6 +18,7 @@ uint8_t systick_250ms_counter = 0;
 void main(){
     //Balance port config
     DDRB |= (1 << DISCHARGE_PORT);
+    DDRB |= (1 << DEBUG_LED_PIN);
     
     // Check for badgap reference calibration value
     uint8_t bgrefcalkey = EEPROM_read(EE_BGREFCALKEY_ADDR);

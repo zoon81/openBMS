@@ -11,6 +11,8 @@
 
 #define SWUART_TX_TIMER_STOP TCCR0B = TCCR0B & 0xF8; 
 
+#define DEBUG_LED_PIN PB0
+
 //FiFo
 struct fifo_t tx_fifo;
 uint8_t tx_buffer[TX_BUFFER_SIZE];
@@ -97,6 +99,7 @@ void swuart_clearRxFifo(){
 
 // check need to be done for dropped interupts durring isr execution
 ISR(TIM0_COMPA_vect){
+    PORTB |=  (1 << DEBUG_LED_PIN);
     if (status & SW_UART_STATUS_TRANSMIT){
         //TRASNSMITTER
         if (tx_fifo.used <= 0){
@@ -149,9 +152,11 @@ ISR(TIM0_COMPA_vect){
             bytemask = 0xFF;            //set for transmitter
         }
     }
+    PORTB &=  ~(1 << DEBUG_LED_PIN);
 }
 //Start cond. detection
 ISR(INT0_vect){
+    PORTB |=  (1 << DEBUG_LED_PIN);
     //Fireing up timer
     OCR0A = WAIT_AFTER_START_COND;
     TCNT0 = 0;
@@ -160,4 +165,5 @@ ISR(INT0_vect){
     GIMSK &= ~(1 << INT0);
     bytemask = 0;
     tmp = 0;
+    PORTB &=  ~(1 << DEBUG_LED_PIN);
 }
