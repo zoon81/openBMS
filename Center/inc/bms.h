@@ -40,6 +40,17 @@ typedef struct{
     PackVoltage_t       packVoltage;
 } Bms_data_t;
 
+struct decoder_s{
+    unsigned battery_current    : 11;
+    unsigned battery_voltage    : 14;
+    unsigned battery_temp       :  7;
+};
+
+union record {
+    uint32_t record_value;
+    struct decoder_s decoder;
+};
+
 void bms_init(uint8_t cellCount);
 void bms_collectData();
 void bms_updateBLEData();

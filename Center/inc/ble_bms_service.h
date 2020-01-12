@@ -32,8 +32,10 @@ typedef struct ble_bms_s
 {
     uint16_t                        service_handle;
     ble_gatts_char_handles_t        bat_pack_desc_char_handles;
+    ble_gatts_char_handles_t        bat_pack_props_char_handles;
     ble_gatts_char_handles_t        bat_pack_volt_char_handles;
     ble_gatts_char_handles_t        bat_pack_current_char_handles;
+    ble_gatts_char_handles_t        bat_selected_cell_char_handles;
     ble_gatts_char_handles_t        bat_cellVoltage_char_handles;
     ble_gatts_char_handles_t        data_changed_char_handles;
     uint8_t                         uuid_type;

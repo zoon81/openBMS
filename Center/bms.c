@@ -23,7 +23,8 @@ void bms_init(uint8_t cellCount){
     bmsData.cellData.cellCount = cellCount;
     bmsData.cellData.index = 0;
     // Allocate memory for CellVoltage
-    bmsData.cellData.cellVoltage =  nrf_calloc(bmsData.cellData.cellCount, sizeof(bmsData.cellData.cellVoltage));     
+    bmsData.cellData.cellVoltage =  nrf_calloc(bmsData.cellData.cellCount, sizeof(bmsData.cellData.cellVoltage));
+    // record Database;     
 }
 
 void bms_collectData(){
