@@ -18,7 +18,7 @@ struct fifo_t tx_fifo;
 uint8_t tx_buffer[TX_BUFFER_SIZE];
 
 struct fifo_t rx_fifo;
-uint8_t rx_buffer[TX_BUFFER_SIZE];
+uint8_t rx_buffer[RX_BUFFER_SIZE];
 
 volatile uint8_t status;
 volatile uint8_t transreceiver_mode = MODE_RECEIVER;

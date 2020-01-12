@@ -23,7 +23,7 @@
 #define SWUART_RX_PIN PB2
 
 #define TX_BUFFER_SIZE 4
-#define RX_BUFFER_SIZE 4
+#define RX_BUFFER_SIZE 12
 
 #define SW_UART_STATUS_BUSY 1
 #define SW_UART_STATUS_READY 2

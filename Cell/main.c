@@ -82,7 +82,7 @@ void main(){
         // We land here after wake up (INT0 goes low)
         while(swuart_availableByte() == 0 );
         uint8_t dev_addr = swuart_getReceivedByte();
-        //This packet is for me?
+        //Is this byte my address?
         if (dev_addr == DEVICE_ADDRESS){
             //Wait until we get the packet or we get timeout
             while (msec_counter < PACKET_TIMEOUT && swuart_availableByte() < PACKET_PAYLOAD_SIZE){
@@ -98,6 +98,9 @@ void main(){
                 p.data <<= 8;
                 p.data |= swuart_getReceivedByte();
                 p.crc = swuart_getReceivedByte();
+
+                // Clearing the FiFo because we got what we want
+                swuart_clearRxFifo();
                 if ( packet_validate(&p) ){
                     switch (p.command){
                     case PACKET_CMD_PING:{
@@ -139,6 +142,7 @@ void main(){
                 }
                 while (swuart_isTransmitterBusy())
                     ;
+                // We received and handled the request, so we are going to sleep
             }
             // Packet timeout
             else{
@@ -147,9 +151,9 @@ void main(){
         } 
         // This packet is not for me
         else {
-            swuart_halt();
-            swuart_clearRxFifo();
-            _delay_ms(5);
+            // swuart_halt();
+            // swuart_clearRxFifo();
+            // _delay_ms(5);
         }
     } 
 }
